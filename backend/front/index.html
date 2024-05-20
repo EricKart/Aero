@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aviation Tracker</title>
+</head>
+<body>
+    <h1>Aviation Tracker</h1>
+    <button id="fetch-flights">Fetch Flights</button>
+    <pre id="flight-data"></pre>
+
+    <script>
+        document.getElementById('fetch-flights').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/api/flights');
+                const data = await response.json();
+                document.getElementById('flight-data').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                console.error('Error fetching flight data:', error);
+            }
+        });
+    </script>
+</body>
+</html>
