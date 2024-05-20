@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Weather Prediction</title>
+  </head>
+  <body>
+    <h1>Weather Prediction</h1>
+    <form id="weather-form">
+      <label for="lat">Latitude:</label>
+      <input type="text" id="lat" name="lat" required />
+      <label for="lon">Longitude:</label>
+      <input type="text" id="lon" name="lon" required />
+      <button type="submit">Get Weather</button>
+    </form>
+    <div id="weather-result"></div>
+
+    <script>
+      document
+        .getElementById("weather-form")
+        .addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const lat = document.getElementById("lat").value;
+          const lon = document.getElementById("lon").value;
+
+          const response = await fetch(
+            `/api/weather-gov?lat=${lat}&lon=${lon}`
+          );
+          const weatherData = await response.json();
+
+          const resultDiv = document.getElementById("weather-result");
+          resultDiv.innerHTML = weatherData
+            .map(
+              (period) => `
+                <div>
+                    <h2>${period.name}</h2>
+                    <p>${period.temperature} ${period.temperatureUnit}</p>
+                    <p>${period.windSpeed} ${period.windDirection}</p>
+                    <p>${period.shortForecast}</p>
+                    <p>${period.detailedForecast}</p>
+                </div>
+            `
+            )
+            .join("");
+        });
+    </script>
+  </body>
+</html>

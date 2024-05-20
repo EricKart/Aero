@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDL Data</title>
+</head>
+<body>
+    <h1>EDL Data</h1>
+    <button id="fetch-edl">Fetch EDL Data</button>
+    <pre id="edl-data"></pre>
+
+    <script>
+        document.getElementById('fetch-edl').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/api/edl');
+                const data = await response.json();
+                document.getElementById('edl-data').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                console.error('Error fetching EDL data:', error);
+            }
+        });
+    </script>
+</body>
+</html>
