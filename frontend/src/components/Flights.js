@@ -4,6 +4,7 @@ import axios from "axios";
 const Flights = () => {
   const [flights, setFlights] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -11,16 +12,22 @@ const Flights = () => {
         const response = await axios.get("/api/flights");
         setFlights(response.data);
       } catch (error) {
+        setError("Error fetching flights");
         console.error("Error fetching flights:", error);
       } finally {
         setLoading(false);
       }
     };
+
     fetchData();
   }, []);
 
   if (loading) {
     return <p>Loading...</p>;
+  }
+
+  if (error) {
+    return <p>{error}</p>;
   }
 
   return (

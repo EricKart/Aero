@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.json());
 
 // Serve static files from the React app
-app.use(express.static(path.join(__dirname, "../frontend/build/")));
+app.use(express.static(path.join(__dirname, "../frontend/build")));
 
 // API endpoints
 app.get("/api/flights", async (req, res) => {
