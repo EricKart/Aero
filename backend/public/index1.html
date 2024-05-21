@@ -1,31 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Weather Prediction</title>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Weather Prediction</h1>
-    <input type="text" id="city" placeholder="Enter city name">
-    <button id="fetch-weather">Fetch Weather</button>
-    <pre id="weather-data"></pre>
+    <form id="weather-form">
+      <label for="city">City:</label>
+      <input type="text" id="city" name="city" required />
+      <button type="submit">Get Weather</button>
+    </form>
+    <div id="weather-result"></div>
 
     <script>
-        document.getElementById('fetch-weather').addEventListener('click', async () => {
-            const city = document.getElementById('city').value;
-            if (city) {
-                try {
-                    const response = await fetch(`/api/weather?city=${city}`);
-                    const data = await response.json();
-                    document.getElementById('weather-data').textContent = JSON.stringify(data, null, 2);
-                } catch (error) {
-                    console.error('Error fetching weather data:', error);
-                }
-            } else {
-                alert('Please enter a city name.');
-            }
+      document
+        .getElementById("weather-form")
+        .addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const city = document.getElementById("city").value;
+
+          const response = await fetch(`/api/weather?city=${city}`);
+          const weatherData = await response.json();
+
+          const resultDiv = document.getElementById("weather-result");
+          resultDiv.innerHTML = `
+        <h2>Weather in ${weatherData.city}</h2>
+        <p>Temperature: ${weatherData.temperature}°C</p>
+        <p>Description: ${weatherData.description}</p>
+        <p>Humidity: ${weatherData.humidity}%</p>
+        <p>Wind Speed: ${weatherData.windSpeed} m/s</p>
+      `;
         });
     </script>
-</body>
+  </body>
 </html>

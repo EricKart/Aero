@@ -1,25 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EDL Data</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NASA Data</title>
 </head>
 <body>
-    <h1>EDL Data</h1>
-    <button id="fetch-edl">Fetch EDL Data</button>
-    <pre id="edl-data"></pre>
+  <h1>NASA Picture of the Day</h1>
+  <button id="fetch-nasa">Fetch NASA Data</button>
+  <div id="nasa-data"></div>
 
-    <script>
-        document.getElementById('fetch-edl').addEventListener('click', async () => {
-            try {
-                const response = await fetch('/api/edl');
-                const data = await response.json();
-                document.getElementById('edl-data').textContent = JSON.stringify(data, null, 2);
-            } catch (error) {
-                console.error('Error fetching EDL data:', error);
-            }
-        });
-    </script>
+  <script>
+    document.getElementById('fetch-nasa').addEventListener('click', async () => {
+      try {
+        const response = await fetch('/api/nasa');
+        const nasaData = await response.json();
+        const nasaDiv = document.getElementById('nasa-data');
+        nasaDiv.innerHTML = `
+          <h2>${nasaData.title}</h2>
+          <p>${nasaData.date}</p>
+          <p>${nasaData.explanation}</p>
+          ${nasaData.media_type === 'image' ? `<img src="${nasaData.url}" alt="${nasaData.title}" />` : `<iframe src="${nasaData.url}" frameborder="0" allowfullscreen></iframe>`}
+        `;
+      } catch (error) {
+        console.error('Error fetching NASA data:', error);
+      }
+    });
+  </script>
 </body>
 </html>

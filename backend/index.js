@@ -1,12 +1,20 @@
 const express = require("express");
 const axios = require("axios");
 require("dotenv").config();
+const path = require("path");
+const cors = require("cors");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 
-app.use(express.static("public"));
+// Middleware
+app.use(cors());
+app.use(express.json());
 
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, "../frontend/build/")));
+
+// API endpoints
 app.get("/api/flights", async (req, res) => {
   try {
     const response = await axios.get(
@@ -21,7 +29,7 @@ app.get("/api/flights", async (req, res) => {
     }));
     res.json(flights);
   } catch (error) {
-    console.error(error);
+    console.error("Error fetching flights data:", error.message);
     res.status(500).send("Server Error");
   }
 });
@@ -41,7 +49,49 @@ app.get("/api/weather", async (req, res) => {
     };
     res.json(weatherData);
   } catch (error) {
-    console.error(error);
+    console.error("Error fetching OpenWeather data:", error.message);
+    res.status(500).send("Server Error");
+  }
+});
+
+app.get("/api/weather-gov", async (req, res) => {
+  const { lat, lon } = req.query;
+  if (!lat || !lon) {
+    return res.status(400).send("Latitude and Longitude are required");
+  }
+
+  try {
+    const pointResponse = await axios.get(
+      `https://api.weather.gov/points/${lat},${lon}`,
+      {
+        headers: {
+          "User-Agent": process.env.USER_AGENT,
+        },
+      }
+    );
+
+    const forecastUrl = pointResponse.data.properties.forecast;
+    const forecastResponse = await axios.get(forecastUrl, {
+      headers: {
+        "User-Agent": process.env.USER_AGENT,
+      },
+    });
+
+    const forecastData = forecastResponse.data.properties.periods.map(
+      (period) => ({
+        name: period.name,
+        temperature: period.temperature,
+        temperatureUnit: period.temperatureUnit,
+        windSpeed: period.windSpeed,
+        windDirection: period.windDirection,
+        shortForecast: period.shortForecast,
+        detailedForecast: period.detailedForecast,
+      })
+    );
+
+    res.json(forecastData);
+  } catch (error) {
+    console.error("Error fetching Weather.gov data:", error.message);
     res.status(500).send("Server Error");
   }
 });
@@ -60,7 +110,7 @@ app.get("/api/nasa", async (req, res) => {
     };
     res.json(nasaData);
   } catch (error) {
-    console.error(error);
+    console.error("Error fetching NASA data:", error.message);
     res.status(500).send("Server Error");
   }
 });
@@ -78,48 +128,14 @@ app.get("/api/edl", async (req, res) => {
     const edlData = response.data;
     res.json(edlData);
   } catch (error) {
-    console.error(
-      "Error fetching EDL data:",
-      error.response ? error.response.data : error.message
-    );
+    console.error("Error fetching EDL data:", error.message);
     res.status(500).send("Server Error");
   }
 });
 
-app.get('/api/weather-gov', async (req, res) => {
-  const { lat, lon } = req.query;
-  const {gridX, gridY} = req.query;
-  try {
-      const pointResponse = await axios.get(`https://api.weather.gov/points/${lat},${lon}`, {
-          headers: {
-              'User-Agent': process.env.USER_AGENT
-          }
-      });
-      const gridResponse = await axios.get(`https://api.weather.gov/gridpoints/{office}/${gridX},${gridY}/forecast`,{
-        headers:{
-          'User-Agent': process.env.USER_AGENT
-        }
-        });
-      const forecastUrl = pointResponse.data.properties.forecast;
-      const forecastResponse = await axios.get(forecastUrl, {
-          headers: {
-              'User-Agent': process.env.USER_AGENT
-          }
-      });
-      const forecastData = forecastResponse.data.properties.periods.map(period => ({
-          name: period.name,
-          temperature: period.temperature,
-          temperatureUnit: period.temperatureUnit,
-          windSpeed: period.windSpeed,
-          windDirection: period.windDirection,
-          shortForecast: period.shortForecast,
-          detailedForecast: period.detailedForecast
-      }));
-      res.json(forecastData);
-  } catch (error) {
-      console.error('Error fetching Weather.gov data:', error.response ? error.response.data : error.message);
-      res.status(500).send('Server Error');
-  }
+// The "catchall" handler: for any request that doesn't match an API route, send back React's index.html file.
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/build/index.html"));
 });
 
 app.listen(PORT, () => {

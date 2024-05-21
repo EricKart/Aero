@@ -1,25 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aviation Tracker</title>
-</head>
-<body>
-    <h1>Aviation Tracker</h1>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flight Data</title>
+  </head>
+  <body>
+    <h1>Flight Information</h1>
     <button id="fetch-flights">Fetch Flights</button>
-    <pre id="flight-data"></pre>
+    <div id="flights-data"></div>
 
     <script>
-        document.getElementById('fetch-flights').addEventListener('click', async () => {
-            try {
-                const response = await fetch('/api/flights');
-                const data = await response.json();
-                document.getElementById('flight-data').textContent = JSON.stringify(data, null, 2);
-            } catch (error) {
-                console.error('Error fetching flight data:', error);
-            }
+      document
+        .getElementById("fetch-flights")
+        .addEventListener("click", async () => {
+          try {
+            const response = await fetch("/api/flights");
+            const flights = await response.json();
+            const flightsDiv = document.getElementById("flights-data");
+            flightsDiv.innerHTML = flights
+              .map(
+                (flight) => `
+          <div>
+            <h2>${flight.airline} - ${flight.flightNumber}</h2>
+            <p>Departure: ${flight.departure}</p>
+            <p>Arrival: ${flight.arrival}</p>
+            <p>Status: ${flight.status}</p>
+          </div>
+        `
+              )
+              .join("");
+          } catch (error) {
+            console.error("Error fetching flight data:", error);
+          }
         });
     </script>
-</body>
+  </body>
 </html>
